@@ -1,0 +1,9 @@
+F:\snowflake-id-generator\snowflake-id-generator\src\main\java\com\example\idgen\config\IdGeneratorConfig.java
+F:\snowflake-id-generator\snowflake-id-generator\src\main\java\com\example\idgen\controller\IdController.java
+F:\snowflake-id-generator\snowflake-id-generator\src\main\java\com\example\idgen\dto\BatchRequest.java
+F:\snowflake-id-generator\snowflake-id-generator\src\main\java\com\example\idgen\dto\BatchResponse.java
+F:\snowflake-id-generator\snowflake-id-generator\src\main\java\com\example\idgen\dto\IdResponse.java
+F:\snowflake-id-generator\snowflake-id-generator\src\main\java\com\example\idgen\dto\StatsResponse.java
+F:\snowflake-id-generator\snowflake-id-generator\src\main\java\com\example\idgen\generator\SnowflakeIdGenerator.java
+F:\snowflake-id-generator\snowflake-id-generator\src\main\java\com\example\idgen\IdGenApplication.java
+F:\snowflake-id-generator\snowflake-id-generator\src\main\java\com\example\idgen\service\StatsService.java

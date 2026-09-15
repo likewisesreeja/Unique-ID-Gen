@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  id-server-1:
+    build: .
+    container_name: id-server-1
+    environment:
+      - DATACENTER_ID=1
+      - MACHINE_ID=1
+    expose:
+      - "8080"
+    restart: unless-stopped
+
+  id-server-2:
+    build: .
+    container_name: id-server-2
+    environment:
+      - DATACENTER_ID=1
+      - MACHINE_ID=2
+    expose:
+      - "8080"
+    restart: unless-stopped
+
+  id-server-3:
+    build: .
+    container_name: id-server-3
+    environment:
+      - DATACENTER_ID=1
+      - MACHINE_ID=3
+    expose:
+      - "8080"
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    container_name: id-lb
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - id-server-1
+      - id-server-2
+      - id-server-3
+    restart: unless-stopped

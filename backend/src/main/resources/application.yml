@@ -1,0 +1,16 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: snowflake-id-generator
+
+# datacenterId/machineId are overridden per-container via the DATACENTER_ID
+# and MACHINE_ID environment variables set in docker-compose.yml
+id-generator:
+  datacenter-id: ${DATACENTER_ID:1}
+  machine-id: ${MACHINE_ID:1}
+
+logging:
+  level:
+    root: INFO

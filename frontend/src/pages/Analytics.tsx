@@ -1,0 +1,11 @@
+import { Activity, BarChart3, Gauge, TrendingUp } from "lucide-react";
+import { LineChart,Line,ResponsiveContainer,CartesianGrid,XAxis,YAxis,Tooltip } from "recharts";
+
+const data=[{t:"10:00",r:7200,l:5.1},{t:"10:05",r:8400,l:4.8},{t:"10:10",r:10100,l:4.4},{t:"10:15",r:11800,l:4.0},{t:"10:20",r:12450,l:3.8},{t:"10:25",r:13900,l:4.1},{t:"10:30",r:15100,l:3.7},{t:"10:35",r:18200,l:3.5}];
+
+export default function Analytics(){return <div className="page"><div className="page-title"><div><div className="eyebrow">OBSERVABILITY</div><h1>Performance Lab</h1><p>Use these panels during the load-testing demonstration.</p></div></div>
+ <div className="analytics-grid"><div className="panel chart-panel"><div className="panel-head"><div><h2>Throughput</h2><p>Illustrative dashboard data — replace with JMeter/k6 results.</p></div><TrendingUp/></div><div className="chart"><ResponsiveContainer width="100%" height="100%"><LineChart data={data}><CartesianGrid strokeDasharray="3 3" opacity={.12}/><XAxis dataKey="t"/><YAxis/><Tooltip/><Line type="monotone" dataKey="r" strokeWidth={3} dot={false}/></LineChart></ResponsiveContainer></div></div>
+ <div className="panel chart-panel"><div className="panel-head"><div><h2>Latency</h2><p>Average response time in milliseconds.</p></div><Gauge/></div><div className="chart"><ResponsiveContainer width="100%" height="100%"><LineChart data={data}><CartesianGrid strokeDasharray="3 3" opacity={.12}/><XAxis dataKey="t"/><YAxis/><Tooltip/><Line type="monotone" dataKey="l" strokeWidth={3} dot={false}/></LineChart></ResponsiveContainer></div></div></div>
+ <div className="benchmark-grid"><Stat icon={Activity} title="Requests / sec" value="15,100"/><Stat icon={BarChart3} title="Peak IDs / sec" value="18,200"/><Stat icon={Gauge} title="P95 latency" value="6.2 ms"/><Stat icon={TrendingUp} title="Success rate" value="99.98%"/></div>
+ </div>}
+function Stat({icon:Icon,title,value}:{icon:any,title:string,value:string}){return <div className="panel stat"><Icon/><small>{title}</small><b>{value}</b></div>}

@@ -1,0 +1,9 @@
+C:\25255A0525\idgenerator\backend\src\main\java\com\example\idgen\config\IdGeneratorConfig.java
+C:\25255A0525\idgenerator\backend\src\main\java\com\example\idgen\controller\IdController.java
+C:\25255A0525\idgenerator\backend\src\main\java\com\example\idgen\dto\BatchRequest.java
+C:\25255A0525\idgenerator\backend\src\main\java\com\example\idgen\dto\BatchResponse.java
+C:\25255A0525\idgenerator\backend\src\main\java\com\example\idgen\dto\IdResponse.java
+C:\25255A0525\idgenerator\backend\src\main\java\com\example\idgen\dto\StatsResponse.java
+C:\25255A0525\idgenerator\backend\src\main\java\com\example\idgen\generator\SnowflakeIdGenerator.java
+C:\25255A0525\idgenerator\backend\src\main\java\com\example\idgen\IdGenApplication.java
+C:\25255A0525\idgenerator\backend\src\main\java\com\example\idgen\service\StatsService.java

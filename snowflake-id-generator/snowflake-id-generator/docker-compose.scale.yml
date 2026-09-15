@@ -1,0 +1,48 @@
+# Extension used for Demo 5 (scale from 3 -> 5 nodes).
+#
+# Dynamic `docker compose up --scale id-server=N` doesn't work well here on
+# purpose: every node needs a STABLE, UNIQUE machine id (see the warning in
+# IdGeneratorConfig.java), and Compose has no built-in way to hand out unique
+# env vars to auto-scaled replicas. Randomly/hash-derived machine ids risk
+# collisions, which is exactly the bug this design avoids. So scaling is done
+# by adding explicitly-numbered nodes instead - which is also how you'd do it
+# for real fixed-identity infrastructure (e.g. Kafka broker ids, Cassandra
+# rack/node ids).
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.scale.yml up --build
+#
+# This brings the cluster up with 5 nodes and switches NGINX to the 5-node
+# upstream config.
+
+services:
+  id-server-4:
+    build: .
+    container_name: id-server-4
+    environment:
+      - DATACENTER_ID=1
+      - MACHINE_ID=4
+    expose:
+      - "8080"
+    restart: unless-stopped
+
+  id-server-5:
+    build: .
+    container_name: id-server-5
+    environment:
+      - DATACENTER_ID=1
+      - MACHINE_ID=5
+    expose:
+      - "8080"
+    restart: unless-stopped
+
+  nginx:
+    volumes:
+      - ./nginx/nginx.scale.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - id-server-1
+      - id-server-2
+      - id-server-3
+      - id-server-4
+      - id-server-5

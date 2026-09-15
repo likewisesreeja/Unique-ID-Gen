@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ID Cluster — Snowflake Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0F1419;
+    --panel:#161D26;
+    --panel-2:#1C2530;
+    --line:#2A3542;
+    --amber:#E8A33D;
+    --amber-dim:#8A6526;
+    --text:#E7ECEF;
+    --muted:#7C8B99;
+    --good:#4FAE7C;
+    --bad:#D9635C;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    color:var(--text);
+    font-family:'IBM Plex Sans',system-ui,sans-serif;
+    min-height:100vh;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  header{
+    padding:32px clamp(20px,5vw,64px) 24px;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+  header h1{
+    margin:0 0 6px;
+    font-size:22px;
+    font-weight:600;
+    letter-spacing:0.2px;
+  }
+  header p{
+    margin:0;
+    color:var(--muted);
+    font-size:14px;
+    max-width:52ch;
+    line-height:1.5;
+  }
+  .cluster-tag{
+    font-size:12px;
+    color:var(--amber);
+    border:1px solid var(--amber-dim);
+    padding:5px 10px;
+    letter-spacing:0.4px;
+  }
+
+  main{
+    padding:28px clamp(20px,5vw,64px) 64px;
+    max-width:1180px;
+    margin:0 auto;
+  }
+
+  .hero{
+    display:grid;
+    grid-template-columns:1.3fr 1fr;
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    margin-bottom:28px;
+  }
+  .hero > div{background:var(--panel);padding:26px 28px;}
+  .hero .big{
+    font-size:clamp(40px,6vw,64px);
+    font-weight:600;
+    line-height:1;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .hero .label{
+    color:var(--muted);
+    font-size:13px;
+    margin-bottom:10px;
+  }
+  .hero .sub{
+    color:var(--muted);
+    font-size:13px;
+    margin-top:10px;
+  }
+  .rate-row{display:flex;gap:28px;flex-wrap:wrap;}
+  .rate-row .stat{min-width:120px;}
+  .rate-row .stat .v{font-size:24px;font-family:'IBM Plex Mono',monospace;font-weight:500;}
+  .rate-row .stat .k{font-size:12px;color:var(--muted);margin-top:4px;}
+
+  section h2{
+    font-size:14px;
+    font-weight:600;
+    color:var(--text);
+    margin:0 0 14px;
+    padding-top:8px;
+  }
+  section{margin-bottom:32px;}
+
+  .nodes{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .node{
+    background:var(--panel);
+    padding:16px 18px;
+  }
+  .node .row1{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .node .id{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--muted);}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block;}
+  .dot.up{background:var(--good);}
+  .dot.down{background:var(--bad);}
+  .node .hits{font-size:20px;font-family:'IBM Plex Mono',monospace;}
+  .node .hits-label{font-size:11px;color:var(--muted);margin-top:2px;}
+
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+  button{
+    background:var(--panel-2);
+    color:var(--text);
+    border:1px solid var(--line);
+    padding:10px 16px;
+    font-size:13px;
+    font-family:inherit;
+    cursor:pointer;
+  }
+  button:hover{border-color:var(--amber-dim);}
+  button.primary{
+    background:var(--amber);
+    color:#221604;
+    border-color:var(--amber);
+    font-weight:600;
+  }
+  button.primary:hover{background:#f0ae4d;}
+  button:disabled{opacity:0.5;cursor:default;}
+
+  .log{
+    border:1px solid var(--line);
+    background:var(--panel);
+    max-height:340px;
+    overflow-y:auto;
+  }
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{
+    text-align:left;
+    padding:10px 14px;
+    color:var(--muted);
+    font-weight:500;
+    font-size:12px;
+    border-bottom:1px solid var(--line);
+    position:sticky;top:0;
+    background:var(--panel);
+  }
+  tbody td{
+    padding:8px 14px;
+    border-bottom:1px solid var(--line);
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--text);
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  .empty-row td{color:var(--muted);font-family:inherit;padding:20px 14px;}
+
+  .flow{
+    display:flex;
+    align-items:center;
+    gap:0;
+    overflow-x:auto;
+    border:1px solid var(--line);
+    padding:20px;
+    background:var(--panel);
+  }
+  .flow .box{
+    font-size:12px;
+    padding:10px 14px;
+    border:1px solid var(--line);
+    background:var(--panel-2);
+    white-space:nowrap;
+    color:var(--muted);
+  }
+  .flow .arrow{color:var(--amber-dim);padding:0 10px;font-size:14px;}
+  .flow .box.active{border-color:var(--amber);color:var(--amber);}
+
+  footer{
+    color:var(--muted);
+    font-size:12px;
+    padding:20px clamp(20px,5vw,64px) 40px;
+    border-top:1px solid var(--line);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>ID Cluster</h1>
+    <p>Snowflake-based distributed id generation — three worker nodes behind a load balancer, each minting ids independently. No shared database on the hot path.</p>
+  </div>
+  <div class="cluster-tag" id="cluster-tag">datacenter 1</div>
+</header>
+
+<main>
+
+  <div class="hero">
+    <div>
+      <div class="label">Total ids generated this session</div>
+      <div class="big mono" id="total-generated">0</div>
+      <div class="sub">Duplicates observed: <span id="dupe-count" class="mono">0</span></div>
+    </div>
+    <div>
+      <div class="label">Reachable via load balancer</div>
+      <div class="rate-row">
+        <div class="stat"><div class="v" id="last-machine">—</div><div class="k">last id served by</div></div>
+        <div class="stat"><div class="v" id="reqs-sec">0</div><div class="k">req/sec (client-side)</div></div>
+        <div class="stat"><div class="v" id="node-count">3</div><div class="k">active nodes</div></div>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <h2>Request flow</h2>
+    <div class="flow">
+      <div class="box">client</div><div class="arrow">→</div>
+      <div class="box active" id="flow-lb">nginx :8080</div><div class="arrow">→</div>
+      <div class="box" id="flow-1">worker 1 · dc1/m1</div><div class="arrow">→</div>
+      <div class="box" id="flow-2">worker 2 · dc1/m2</div><div class="arrow">→</div>
+      <div class="box" id="flow-3">worker 3 · dc1/m3</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Controls</h2>
+    <div class="controls">
+      <button class="primary" id="btn-one">Generate 1 id</button>
+      <button id="btn-batch">Generate batch of 100</button>
+      <button id="btn-stress">Run concurrency check (500 ids, 20 parallel)</button>
+      <button id="btn-clear">Clear log</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Recent ids</h2>
+    <div class="log">
+      <table>
+        <thead>
+          <tr><th>id</th><th>datacenter</th><th>machine</th><th>generated at</th></tr>
+        </thead>
+        <tbody id="log-body">
+          <tr class="empty-row"><td colspan="4">No ids generated yet — use the controls above.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Talks to <span class="mono">/api/v1/ids</span>, <span class="mono">/api/v1/ids/batch</span> and <span class="mono">/api/v1/stats</span> through the NGINX upstream. Requests are round-robined across whichever worker nodes are healthy.
+</footer>
+
+<script>
+  const seenIds = new Set();
+  let dupes = 0;
+  let clientRequests = 0;
+  const startTime = Date.now();
+
+  function fmt(n){ return n.toLocaleString('en-US'); }
+
+  function addRow(id, dc, machine, ts){
+    const body = document.getElementById('log-body');
+    const emptyRow = body.querySelector('.empty-row');
+    if (emptyRow) emptyRow.remove();
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${id}</td><td>${dc}</td><td>${machine}</td><td>${new Date(ts).toLocaleTimeString()}</td>`;
+    body.prepend(tr);
+    while (body.children.length > 200) body.removeChild(body.lastChild);
+  }
+
+  function recordId(id, dc, machine, ts){
+    if (seenIds.has(id)) {
+      dupes++;
+      document.getElementById('dupe-count').textContent = dupes;
+    }
+    seenIds.add(id);
+    document.getElementById('total-generated').textContent = fmt(seenIds.size);
+    document.getElementById('last-machine').textContent = 'm' + machine;
+    addRow(id, dc, machine, ts);
+    document.getElementById('flow-' + machine)?.classList.add('active');
+    setTimeout(() => document.getElementById('flow-' + machine)?.classList.remove('active'), 400);
+  }
+
+  function updateRate(){
+    const elapsed = Math.max(1, (Date.now() - startTime) / 1000);
+    document.getElementById('reqs-sec').textContent = (clientRequests / elapsed).toFixed(1);
+  }
+
+  async function generateOne(){
+    clientRequests++;
+    const res = await fetch('/api/v1/ids', { method: 'POST' });
+    const data = await res.json();
+    recordId(data.id, data.datacenterId, data.machineId, data.generatedAt);
+    updateRate();
+  }
+
+  async function generateBatch(count){
+    clientRequests++;
+    const res = await fetch('/api/v1/ids/batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ count })
+    });
+    const data = await res.json();
+    const now = Date.now();
+    data.ids.forEach(id => recordId(id, '—', data.machineId, now));
+    updateRate();
+  }
+
+  async function runConcurrencyCheck(){
+    const btn = document.getElementById('btn-stress');
+    btn.disabled = true;
+    btn.textContent = 'Running…';
+    const before = seenIds.size;
+    const workers = Array.from({length: 20}, () => generateBatch(25));
+    await Promise.all(workers);
+    const after = seenIds.size;
+    btn.textContent = `Run concurrency check (500 ids, 20 parallel)`;
+    btn.disabled = false;
+    alert(`Fired 20 parallel batch requests (25 ids each = 500 total).\nUnique ids added: ${after - before}\nDuplicates detected so far: ${dupes}`);
+  }
+
+  document.getElementById('btn-one').addEventListener('click', generateOne);
+  document.getElementById('btn-batch').addEventListener('click', () => generateBatch(100));
+  document.getElementById('btn-stress').addEventListener('click', runConcurrencyCheck);
+  document.getElementById('btn-clear').addEventListener('click', () => {
+    document.getElementById('log-body').innerHTML = '<tr class="empty-row"><td colspan="4">No ids generated yet — use the controls above.</td></tr>';
+  });
+</script>
+
+</body>
+</html>
